@@ -12,9 +12,20 @@
     <script>
         const { ipcRenderer } = require("electron");
 
+        // Request prayer times from the main process
+        ipcRenderer.send("get-prayer-times");
+
+        // Listen for prayer times from the main process
         ipcRenderer.on("prayer-times", (event, timings) => {
             const list = document.getElementById("prayer-times");
-            list.innerHTML = ""; // Clear previous entries
+            list.innerHTML = "";  // Clear previous entries
+
+            if (Object.keys(timings).length === 0) {
+                list.innerHTML = "<li>Error fetching prayer times</li>";
+                return;
+            }
+
+            // Loop through timings and create a list item for each
             for (const [prayer, time] of Object.entries(timings)) {
                 const li = document.createElement("li");
                 li.textContent = `${prayer}: ${time}`;
