@@ -1,21 +1,21 @@
-const { ipcRenderer } = require('electron');
+const { ipcMain } = require("electron");
 
-async function loadPrayerTimes() {
-    const prayerTimes = await ipcRenderer.invoke('fetch-prayer-times');
+async function getPrayerTimes() {
+  try {
+    const response = await axios.get(
+      "https://api.aladhan.com/v1/timingsByCity",
+      {
+        params: {
+          city: "Toronto",
+          country: "Canada",
+          method: 2,
+        },
+      }
+    );
 
-    if (!prayerTimes) {
-        document.getElementById('prayer-times').innerHTML = "<li>Error loading prayer times</li>";
-        return;
-    }
-
-    const list = document.getElementById('prayer-times');
-    list.innerHTML = ""; // Clear previous content
-
-    for (const [prayer, time] of Object.entries(prayerTimes)) {
-        const listItem = document.createElement("li");
-        listItem.textContent = `${prayer}: ${time}`;
-        list.appendChild(listItem);
-    }
+    const timings = response.data.data.timings;
+    mainWindow.webContents.send("prayer-times", timings);
+  } catch (error) {
+    console.error("Error fetching prayer times:", error);
+  }
 }
-
-loadPrayerTimes();

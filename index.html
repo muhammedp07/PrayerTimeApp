@@ -1,12 +1,26 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, intial-scale=1.0">
-    <title>Prayer Time Reminder</title>
-    <script defer src="renderer.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Time App</title>
 </head>
 <body>
-    <h1>Prayer Time Reminder App</h1>
+    <h1>Prayer Times</h1>
     <ul id="prayer-times"></ul>
+
+    <script>
+        const { ipcRenderer } = require("electron");
+
+        ipcRenderer.on("prayer-times", (event, timings) => {
+            const list = document.getElementById("prayer-times");
+            list.innerHTML = ""; // Clear previous entries
+            for (const [prayer, time] of Object.entries(timings)) {
+                const li = document.createElement("li");
+                li.textContent = `${prayer}: ${time}`;
+                list.appendChild(li);
+            }
+        });
+    </script>
 </body>
 </html>
